@@ -1,0 +1,591 @@
+<html><head><base href="." /></head><style>
+:root {
+  --cottage-pink: #ffd1dc;
+  --cottage-green: #94b494;
+  --cottage-brown: #8b4513;
+  --cottage-cream: #fffdd0;
+}
+
+body {
+  background: var(--cottage-cream);
+  font-family: 'Georgia', serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 15 Q 30 5, 45 15 T 75 15' stroke='%23ffd1dc' fill='none' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+.game-container {
+  border: 10px solid var(--cottage-brown);
+  border-radius: 15px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 20px rgba(139, 69, 19, 0.3);
+  margin-top: 20px;
+}
+
+.game-title {
+    font-size: 2.5em;
+    color: var(--cottage-brown);
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Georgia', serif;
+    text-shadow: 2px 2px var(--cottage-pink);
+    position: relative;
+    padding: 10px;
+}
+
+.game-title::before,
+.game-title::after {
+    content: "🌸";
+    padding: 0 10px;
+}
+
+.game-board {
+  border: 5px solid var(--cottage-green);
+  background: var(--cottage-cream);
+}
+
+button {
+  background: var(--cottage-pink);
+  border: 3px solid var(--cottage-brown);
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-family: 'Georgia', serif;
+  font-size: 1.2em;
+  margin: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: var(--cottage-green);
+  color: white;
+}
+
+.controls {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.score {
+  font-size: 1.5em;
+  color: var(--cottage-brown);
+  margin: 10px 0;
+}
+
+.score-board {
+  background: white;
+  border: 5px solid var(--cottage-green);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(139, 69, 19, 0.2);
+}
+
+.score-title {
+  color: var(--cottage-brown);
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+.high-scores {
+  list-style: none;
+  padding: 0;
+}
+
+.high-scores li {
+  color: var(--cottage-brown);
+  padding: 5px;
+  border-bottom: 1px dashed var(--cottage-pink);
+}
+
+.controls-panel {
+  background: white;
+  border: 5px solid var(--cottage-green);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px;
+  text-align: left;
+}
+
+.controls-title {
+  color: var(--cottage-brown);
+  font-size: 1.3em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  color: var(--cottage-brown);
+}
+
+.key {
+  background: var(--cottage-pink);
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-right: 10px;
+  font-family: monospace;
+}
+
+.preview-box {
+  border: 5px solid var(--cottage-green);
+  background: var(--cottage-cream);
+  width: 120px;
+  height: 120px;
+  margin: 10px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.preview-title {
+  color: var(--cottage-brown);
+  font-size: 1.3em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.hold-title {
+  color: var(--cottage-brown);
+  font-size: 1.3em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Decorative elements */
+.flower {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+}
+
+.flower-1 {
+  top: 20px;
+  left: 20px;
+}
+
+.flower-2 {
+  bottom: 20px;
+  right: 20px;
+}
+</style>
+
+<div class="game-container">
+  <h1 class="game-title">TETRIS</h1>
+  <div class="score">Score: <span id="score">0</span></div>
+  <div class="preview-title">🎲 Next Piece 🎲</div>
+  <canvas id="preview-box" class="preview-box" width="120" height="120"></canvas>
+  <div class="hold-title">💠 Hold Piece 💠</div>
+  <canvas id="hold-box" class="preview-box" width="120" height="120"></canvas>
+  <canvas id="game-board" class="game-board" width="300" height="600"></canvas>
+  <div class="controls">
+    <button id="start-btn">🌸 Start Game 🌸</button>
+    <button id="up-btn">🌺 Up/Rotate 🌺</button>  
+    <button id="down-btn">🌷 Down 🌷</button>
+    <button id="left-btn">🌱 Left 🌱</button>
+    <button id="right-btn">🍂 Right 🍂</button>
+    <button id="fast-drop-btn">💨 Drop 💨</button>
+    <button id="hold-btn">💫 Hold/Swap 💫</button>
+  </div>
+</div>
+
+<div class="score-board">
+  <div class="score-title">🌸 High Scores 🌸</div>
+  <ul class="high-scores" id="high-scores">
+    <li>1. 1000 pts</li>
+    <li>2. 800 pts</li>
+    <li>3. 600 pts</li>
+  </ul>
+</div>
+
+<div class="controls-panel">
+  <div class="controls-title">🌿 Controls 🌿</div>
+  <div class="control-item"><span class="key">←</span> Move Left</div>
+  <div class="control-item"><span class="key">→</span> Move Right</div>
+  <div class="control-item"><span class="key">↓</span> Move Down</div>
+  <div class="control-item"><span class="key">↑</span> Rotate</div>
+  <div class="control-item"><span class="key">Space</span> Fast Drop</div>
+  <div class="control-item"><span class="key">H</span> Hold/Swap Piece</div>
+</div>
+
+<svg class="flower flower-1" viewBox="0 0 100 100">
+  <path d="M50 20 Q 60 10, 70 20 T 90 20 M50 20 Q 40 10, 30 20 T 10 20" stroke="var(--cottage-pink)" fill="none"/>
+  <circle cx="50" cy="20" r="5" fill="var(--cottage-green)"/>
+</svg>
+
+<script>
+const canvas = document.getElementById('game-board');
+const ctx = canvas.getContext('2d');
+const BLOCK_SIZE = 30;
+const BOARD_WIDTH = 10;
+const BOARD_HEIGHT = 20;
+
+// Cottagecore-themed colors
+const COLORS = [
+    '#ffd1dc', // pink
+    '#94b494', // green
+    '#f0e68c', // khaki
+    '#dda0dd', // plum
+    '#ffb6c1', // light pink
+    '#98fb98', // pale green
+    '#deb887'  // burlywood
+];
+
+const SHAPES = [
+    [[1, 1, 1, 1]],                    // I
+    [[1, 1], [1, 1]],                  // O
+    [[1, 1, 1], [0, 1, 0]],           // T
+    [[1, 1, 1], [1, 0, 0]],           // L
+    [[1, 1, 1], [0, 0, 1]],           // J
+    [[1, 1, 0], [0, 1, 1]],           // S
+    [[0, 1, 1], [1, 1, 0]]            // Z
+];
+
+let board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+let currentPiece = null;
+let nextPiece = null;
+let currentPosition = {x: 0, y: 0};
+let score = 0;
+let gameLoop = null;
+let gameStarted = false;
+let highScores = [1000, 800, 600];
+
+let holdPiece = null;
+let canHold = true;
+const previewCanvas = document.getElementById('preview-box');
+const previewCtx = previewCanvas.getContext('2d');
+const holdCanvas = document.getElementById('hold-box');
+const holdCtx = holdCanvas.getContext('2d');
+
+class Piece {
+    constructor(shape, color) {
+        this.shape = shape;
+        this.color = color;
+    }
+}
+
+function createNewPiece() {
+    const currentPiece = nextPiece || new Piece(SHAPES[Math.floor(Math.random() * SHAPES.length)], COLORS[Math.floor(Math.random() * COLORS.length)]);
+    const shapeIndex = Math.floor(Math.random() * SHAPES.length);
+    const colorIndex = Math.floor(Math.random() * COLORS.length);
+    nextPiece = new Piece(SHAPES[shapeIndex], COLORS[colorIndex]);
+    drawPreview();
+    return currentPiece;
+}
+
+function drawPreview() {
+    previewCtx.fillStyle = 'var(--cottage-cream)';
+    previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+    
+    if (!nextPiece) return;
+    
+    const blockSize = 25;
+    const offsetX = (previewCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
+    const offsetY = (previewCanvas.height - nextPiece.shape.length * blockSize) / 2;
+    
+    nextPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value) {
+                previewCtx.fillStyle = nextPiece.color;
+                previewCtx.fillRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
+                previewCtx.strokeStyle = 'var(--cottage-brown)';
+                previewCtx.strokeRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
+            }
+        });
+    });
+}
+
+function drawHoldPiece() {
+    holdCtx.fillStyle = 'var(--cottage-cream)';
+    holdCtx.fillRect(0, 0, holdCanvas.width, holdCanvas.height);
+    
+    if (!holdPiece) return;
+    
+    const blockSize = 25;
+    const offsetX = (holdCanvas.width - holdPiece.shape[0].length * blockSize) / 2;
+    const offsetY = (holdCanvas.height - holdPiece.shape.length * blockSize) / 2;
+    
+    holdPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value) {
+                holdCtx.fillStyle = holdPiece.color;
+                holdCtx.fillRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
+                holdCtx.strokeStyle = 'var(--cottage-brown)';
+                holdCtx.strokeRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
+            }
+        });
+    });
+}
+
+function drawBoard() {
+    ctx.fillStyle = 'var(--cottage-cream)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw the fixed pieces
+    for(let y = 0; y < BOARD_HEIGHT; y++) {
+        for(let x = 0; x < BOARD_WIDTH; x++) {
+            if(board[y][x]) {
+                drawBlock(x, y, board[y][x]);
+            }
+        }
+    }
+    
+    // Draw the current piece
+    if(currentPiece) {
+        currentPiece.shape.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if(value) {
+                    drawBlock(currentPosition.x + x, currentPosition.y + y, currentPiece.color);
+                }
+            });
+        });
+    }
+}
+
+function drawBlock(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    ctx.strokeStyle = 'var(--cottage-brown)';
+    ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+}
+
+function canMove(piece, newX, newY) {
+    return piece.shape.every((row, y) => {
+        return row.every((value, x) => {
+            let nextX = newX + x;
+            let nextY = newY + y;
+            return !value || 
+                   (nextX >= 0 && nextX < BOARD_WIDTH &&
+                    nextY < BOARD_HEIGHT &&
+                    !board[nextY]?.[nextX]);
+        });
+    });
+}
+
+function rotatePiece() {
+    if(!currentPiece) return;
+    
+    const rotated = currentPiece.shape[0].map((_, i) =>
+        currentPiece.shape.map(row => row[i]).reverse()
+    );
+    
+    if(canMove({shape: rotated}, currentPosition.x, currentPosition.y)) {
+        currentPiece.shape = rotated;
+    }
+}
+
+function mergePiece() {
+    currentPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if(value) {
+                board[currentPosition.y + y][currentPosition.x + x] = currentPiece.color;
+            }
+        });
+    });
+}
+
+function clearLines() {
+    let linesCleared = 0;
+    
+    for(let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+        if(board[y].every(cell => cell)) {
+            board.splice(y, 1);
+            board.unshift(Array(BOARD_WIDTH).fill(0));
+            linesCleared++;
+            y++;
+        }
+    }
+    
+    if(linesCleared > 0) {
+        score += linesCleared * 100;
+        document.getElementById('score').textContent = score;
+    }
+    canHold = true;
+}
+
+function updateHighScores(newScore) {
+    highScores.push(newScore);
+    highScores.sort((a, b) => b - a);
+    highScores = highScores.slice(0, 3);
+    
+    const highScoresList = document.getElementById('high-scores');
+    highScoresList.innerHTML = highScores
+        .map((score, index) => `<li>${index + 1}. ${score} pts</li>`)
+        .join('');
+}
+
+function gameStep() {
+    if(!canMove(currentPiece, currentPosition.x, currentPosition.y + 1)) {
+        mergePiece();
+        clearLines();
+        currentPiece = createNewPiece();
+        currentPosition = {x: Math.floor(BOARD_WIDTH/2) - 1, y: 0};
+        
+        if(!canMove(currentPiece, currentPosition.x, currentPosition.y)) {
+            gameOver();
+            return;
+        }
+    } else {
+        currentPosition.y++;
+    }
+    
+    drawBoard();
+}
+
+function gameOver() {
+    clearInterval(gameLoop);
+    gameStarted = false;
+    updateHighScores(score);
+    alert('Game Over! Your score: ' + score);
+}
+
+function startGame() {
+    if(gameStarted) return;
+    
+    board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+    score = 0;
+    document.getElementById('score').textContent = score;
+    nextPiece = createNewPiece();
+    currentPiece = createNewPiece();
+    currentPosition = {x: Math.floor(BOARD_WIDTH/2) - 1, y: 0};
+    gameStarted = true;
+    
+    holdPiece = null;
+    canHold = true;
+    drawHoldPiece();
+    
+    if(gameLoop) clearInterval(gameLoop);
+    gameLoop = setInterval(gameStep, 1000);
+    drawBoard();
+}
+
+function holdPieceFunction() {
+    if (!gameStarted || !canHold) return;
+    
+    if (!holdPiece) {
+        holdPiece = currentPiece;
+        currentPiece = createNewPiece();
+    } else {
+        const temp = holdPiece;
+        holdPiece = currentPiece;
+        currentPiece = temp;
+    }
+    
+    currentPosition = {x: Math.floor(BOARD_WIDTH/2) - 1, y: 0};
+    canHold = false;
+    drawHoldPiece();
+    drawBoard();
+}
+
+document.addEventListener('keydown', (e) => {
+    if(!gameStarted) return;
+    
+    switch(e.key) {
+        case 'ArrowLeft':
+            if(canMove(currentPiece, currentPosition.x - 1, currentPosition.y)) {
+                currentPosition.x--;
+                drawBoard();
+            }
+            break;
+        case 'ArrowRight':
+            if(canMove(currentPiece, currentPosition.x + 1, currentPosition.y)) {
+                currentPosition.x++;
+                drawBoard();
+            }
+            break;
+        case 'ArrowDown':
+            if(canMove(currentPiece, currentPosition.x, currentPosition.y + 1)) {
+                currentPosition.y++;
+                drawBoard();
+            }
+            break;
+        case 'ArrowUp':
+            rotatePiece();
+            drawBoard();
+            break;
+        case ' ': // Space bar
+            fastDrop();
+            break;
+        case 'h':
+        case 'H':
+            holdPieceFunction();
+            break;
+    }
+});
+
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('up-btn').addEventListener('click', () => {
+    if(gameStarted) {
+        rotatePiece();
+        drawBoard();
+    }
+});
+
+document.getElementById('down-btn').addEventListener('click', () => {
+    if(gameStarted) {
+        if(canMove(currentPiece, currentPosition.x, currentPosition.y + 1)) {
+            currentPosition.y++;
+            drawBoard();
+        }
+    }
+});
+
+document.getElementById('left-btn').addEventListener('click', () => {
+    if(gameStarted) {
+        if(canMove(currentPiece, currentPosition.x - 1, currentPosition.y)) {
+            currentPosition.x--;
+            drawBoard();
+        }
+    }
+});
+
+document.getElementById('right-btn').addEventListener('click', () => {
+    if(gameStarted) {
+        if(canMove(currentPiece, currentPosition.x + 1, currentPosition.y)) {
+            currentPosition.x++;
+            drawBoard();
+        }
+    }
+});
+
+function fastDrop() {
+    if (!gameStarted || !currentPiece) return;
+    
+    let dropDistance = 0;
+    while (canMove(currentPiece, currentPosition.x, currentPosition.y + dropDistance + 1)) {
+        dropDistance++;
+    }
+    
+    currentPosition.y += dropDistance;
+    drawBoard();
+    
+    // Immediately process the landing
+    if (!canMove(currentPiece, currentPosition.x, currentPosition.y + 1)) {
+        mergePiece();
+        clearLines();
+        currentPiece = createNewPiece();
+        currentPosition = {x: Math.floor(BOARD_WIDTH/2) - 1, y: 0};
+        
+        if (!canMove(currentPiece, currentPosition.x, currentPosition.y)) {
+            gameOver();
+            return;
+        }
+        drawBoard();
+    }
+}
+
+document.getElementById('fast-drop-btn').addEventListener('click', fastDrop);
+document.getElementById('hold-btn').addEventListener('click', holdPieceFunction);
+
+// Initial draw
+drawBoard();
+drawHoldPiece();
+</script>
